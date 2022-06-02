@@ -7,10 +7,11 @@ import numpy as np
 
 cap = cv2.VideoCapture(0)
 detector = FaceMeshDetector(maxFaces=1)
-
+sen = 10 #More sen results into lower sensitivity
 textList = ['Hello, My name is Rex',
             'I live at Ruyenzi.',
-            "I'm a big fan of computer programming.",
+            "I'm a big fan of computer",
+            "programming.",
             'My favorite language is Python.',
             "I do believe I'm very good at it"]
 
@@ -26,24 +27,21 @@ while True:
         pointLeft = face[145]
         pointRight = face[374]
 
-        cv2.circle(img, pointLeft, 5, (255,45, 135), cv2.FILLED)
-        cv2.circle(img, pointRight, 5, (255,45, 135), cv2.FILLED)
-        cv2.line(img, pointLeft, pointRight, (255, 255, 15), 2)
-
         w, _ = detector.findDistance(pointLeft, pointRight) #Distance in pixels of image in camera
         W = 6.3 # Average distance between the left and right eye
 
         f = 840
-        d = int((W*f)/w)
-        print(d)
+        d = (W*f)/w
+        # print(d)
 
-        cvzone.putTextRect(img, f'Distance: {d}cm', (face[10][0]-130, face[10][0]-225), scale=1.8)
+        cvzone.putTextRect(img, f'Distance: {int(d)}cm', (face[10][0]-130, face[10][0]-225), scale=1.8)
 
         for i, text in enumerate(textList):
-            singleHeight = 50
-            cv2.putText(imgText, text, (50, 50 + (i*singleHeight)), cv2.FONT_ITALIC, 2, (255, 255, 255), 2)
+            singleHeight = 20 + int((int(d/sen)*sen)/5)
+            scale = 0.4+ (int(d/sen)*sen)/100
+            cv2.putText(imgText, text, (30, 50 + (i*singleHeight)), cv2.FONT_ITALIC, scale, (255, 255, 255), 2)
 
-    imgStacked = cv2.stackImages([img, imgText], 2, 1)
+    imgStacked = cvzone.stackImages([img, imgText], 2, 1)
     cv2.imshow("Face-Camera Distance", imgStacked)
     if cv2.waitKey(1) == ord('q'):
         break
